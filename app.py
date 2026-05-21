@@ -490,15 +490,28 @@ def get_phrases_paginated_public():
 
 # ==================== ДЛЯ VERCEL ====================
 # Инициализируем базу данных при запуске
+# ==================== ДЛЯ VERCEL ====================
+# Инициализируем базу данных при запуске
 with app.app_context():
     try:
         db.create_all()
-        # Создаём админа, если его нет
-        if not User.query.filter_by(username='admin').first():
+
+        # Удаляем старого админа если он с логином admin
+        old_admin = User.query.filter_by(username='admin').first()
+        if old_admin:
+            db.session.delete(old_admin)
+            db.session.commit()
+            print("🗑️ Старый администратор 'admin' удалён")
+
+        # Создаём нового админа
+        if not User.query.filter_by(username='flora_fraz').first():
             admin = User(username='flora_fraz', password_hash=generate_password_hash('Flora]]12345'))
             db.session.add(admin)
             db.session.commit()
-            print("👑 Администратор создан: flora_fraz/ Flora]]12345")
+            print("👑 Администратор создан: flora_fraz / Flora]]12345")
+        else:
+            print("✅ Администратор flora_fraz уже существует")
+
     except Exception as e:
         print(f"Ошибка инициализации базы данных: {e}")
 
