@@ -2,36 +2,6 @@
 
 {% block title %}Flora Redewendungen | Deutsch-usbekisches Wörterbuch der Blumen und Pflanzen{% endblock %}
 
-{% block extra_css %}
-<style>
-    body {
-        background-image: url('{{ url_for('static', filename='images/foro1.jpg') }}');
-        background-size: cover;
-        background-attachment: fixed;
-        background-position: center;
-        background-repeat: no-repeat;
-    }
-
-    /* Делаем карточки полупрозрачными для лучшей читаемости */
-    .garden-card {
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(3px);
-        border: 1px solid rgba(74,124,89,0.3);
-    }
-
-    .card {
-        background: rgba(255, 255, 255, 0.92);
-    }
-
-    /* Затемнение для контейнера */
-    .container {
-        background: rgba(255, 255, 255, 0.85);
-        border-radius: 20px;
-        padding: 20px;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="container py-4">
     <div class="row">
