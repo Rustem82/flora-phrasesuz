@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Flora Redewendungen | Deutsch-usbekisches Wörterbuch der Blumen und Pflanzen{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <div class="floral-header">
+                <i class="fas fa-seedling fa-2x" style="color: #4a7c59;"></i>
+                <i class="fas fa-leaf fa-2x mx-2" style="color: #6b8c5c;"></i>
+                <i class="fas fa-feather-alt fa-2x" style="color: #8ba86e;"></i>
+            </div>
+            <h1 class="display-5 fw-bold" style="color: #2d5a3f;">
+                <i class="fas fa-leaf"></i> Flora Redewendungen
+            </h1>
+            <p class="lead">Deutsche Redewendungen über Blumen, Bäume und Pflanzen → Usbekische Entsprechungen</p>
+            <div class="flower-divider">
+                <span class="flower">✿</span> <span class="flower">🌸</span> <span class="flower">🌼</span> <span class="flower">✿</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card garden-card">
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tree"></i> Deutsch
+                            </label>
+                            <textarea id="sourceText" class="form-control" rows="4"
+                                placeholder="🌿 Deutsche Redewendung über Flora eingeben...
+Z.B.: Durch die Blume sagen"></textarea>
+                        </div>
+                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                            <button id="swapBtn" class="btn btn-outline-success rounded-circle" style="width: 55px; height: 55px;">
+                                <i class="fas fa-arrows-alt-h fa-lg"></i>
+                            </button>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-flower"></i> Usbekisch (O‘zbekcha)
+                            </label>
+                            <textarea id="targetText" class="form-control bg-light" rows="4" readonly
+                                placeholder="🌸 Die Übersetzung erscheint hier..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12 d-flex gap-3 justify-content-center">
+                            <button id="translateBtn" class="btn btn-success btn-lg">
+                                <i class="fas fa-seedling"></i> Übersetzen
+                            </button>
+                            <button id="clearBtn" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-leaf"></i> Löschen
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-success bg-opacity-10 rounded-3 border-start border-success border-4">
+                        <small>
+                            <i class="fas fa-info-circle text-success"></i>
+                            <span id="translationNote" class="text-dark">🌷 Geben Sie eine deutsche Redewendung über Blumen, Bäume oder Pflanzen ein und klicken Sie auf „Übersetzen“</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Beliebte Flora-Redewendungen -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="text-center mb-4">
+                <i class="fas fa-star text-warning"></i> Beliebte Redewendungen über Flora
+                <i class="fas fa-star text-warning"></i>
+            </h3>
+            <div class="row g-3" id="examplePhrases">
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-success" role="status"></div>
+                    <p>Lade Weisheiten der Blumen...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .garden-card {
+        background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,248,240,0.95));
+        border: 1px solid rgba(74,124,89,0.3);
+    }
+    .flower-divider {
+        text-align: center;
+        margin: 10px 0;
+    }
+    .flower {
+        display: inline-block;
+        margin: 0 5px;
+        color: #e3b23c;
+        font-size: 1.2rem;
+    }
+    .floral-header i {
+        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+    }
+</style>
+
+<script>
+let currentDirection = 'de2uz';
+let phrases = [];
+
+async function loadExamples() {
+    try {
+        const response = await fetch('/api/phrases');
+        phrases = await response.json();
+        const examplesDiv = document.getElementById('examplePhrases');
+        examplesDiv.innerHTML = phrases.slice(0, 6).map(p => {
+            let icon = '🌿';
+            if (p.plant_type === 'цветок') icon = '🌸';
+            else if (p.plant_type === 'дерево') icon = '🌳';
+            else if (p.plant_type === 'фрукт') icon = '🍎';
+            return `
+            <div class="col-md-4 col-lg-4">
+                <div class="card h-100 border-success">
+                    <div class="card-body">
+                        <h6 class="card-title text-success">${icon} ${escapeHtml(p.german)}</h6>
+                        <p class="card-text small text-secondary">${escapeHtml(p.uzbek)}</p>
+                        <button class="btn btn-sm btn-outline-success use-example" data-text="${escapeHtml(p.german)}">
+                            <i class="fas fa-seedling"></i> Verwenden
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+
+        document.querySelectorAll('.use-example').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('sourceText').value = btn.dataset.text;
+                if (currentDirection !== 'de2uz') {
+                    document.getElementById('swapBtn').click();
+                }
+            });
+        });
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+async function translate() {
+    const sourceText = document.getElementById('sourceText').value;
+    if (!sourceText.trim()) {
+        alert('🌷 Bitte geben Sie eine Redewendung über Flora ein');
+        return;
+    }
+
+    const translateBtn = document.getElementById('translateBtn');
+    translateBtn.disabled = true;
+    translateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Übersetzung...';
+
+    try {
+        const response = await fetch('/api/translate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                text: sourceText,
+                direction: currentDirection
+            })
+        });
+        const data = await response.json();
+
+        document.getElementById('targetText').value = data.translation;
+        document.getElementById('translationNote').innerHTML = data.note.replace(/\n/g, '<br>');
+    } catch(e) {
+        alert('Fehler bei der Übersetzung');
+    } finally {
+        translateBtn.disabled = false;
+        translateBtn.innerHTML = '<i class="fas fa-seedling"></i> Übersetzen';
+    }
+}
+
+document.getElementById('translateBtn').addEventListener('click', translate);
+document.getElementById('clearBtn').addEventListener('click', () => {
+    document.getElementById('sourceText').value = '';
+    document.getElementById('targetText').value = '';
+    document.getElementById('translationNote').innerHTML = '🌷 Gelöscht. Geben Sie eine Redewendung über Flora ein.';
+});
+
+document.getElementById('swapBtn').addEventListener('click', () => {
+    currentDirection = currentDirection === 'de2uz' ? 'uz2de' : 'de2uz';
+
+    if (currentDirection === 'de2uz') {
+        document.getElementById('translationNote').innerHTML = '🌻 Modus: Deutsch → Usbekisch. Geben Sie eine deutsche Redewendung über Pflanzen ein.';
+    } else {
+        document.getElementById('translationNote').innerHTML = '🌻 Modus: Usbekisch → Deutsch. Geben Sie eine usbekische Redewendung über Pflanzen ein.';
+    }
+
+    document.getElementById('sourceText').value = '';
+    document.getElementById('targetText').value = '';
+});
+
+loadExamples();
+</script>
+{% endblock %}

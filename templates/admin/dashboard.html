@@ -1,0 +1,749 @@
+{% extends "base.html" %}
+
+{% block title %}Admin panel | Frazeologizmlar bazasi{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-leaf text-success"></i> Frazeologizmlar bazasi <i class="fas fa-leaf text-success"></i></h1>
+                <div>
+                    <button class="btn btn-info me-2" id="exportJsonBtn">
+                        <i class="fas fa-download"></i> JSON eksport
+                    </button>
+                    <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt"></i> Chiqish
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistika -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6><i class="fas fa-book"></i> Jami iboralar</h6>
+                    <h2 class="mb-0" id="totalPhrases">{{ stats.total_phrases }}</h2>
+                    <small>frazeologizmlar</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6><i class="fas fa-chart-line"></i> Tarjimalar</h6>
+                    <h2 class="mb-0">{{ stats.total_translations }}</h2>
+                    <small>jami so'rovlar</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h6><i class="fas fa-check-circle"></i> Muvaffaqiyat</h6>
+                    <h2 class="mb-0">{{ stats.successful_matches }}%</h2>
+                    <small>aniq mosliklar</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h6><i class="fas fa-tags"></i> Kategoriyalar</h6>
+                    <h2 class="mb-0">10</h2>
+                    <small>o'simlik turlari</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kategoriyalar - asosiy qator -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <i class="fas fa-chart-pie"></i> O'simlik turlari bo'yicha taqsimot
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-2">
+                            <div class="p-3 border rounded">
+                                <i class="fas fa-flower fa-2x text-danger"></i>
+                                <h5>{{ stats.flower_count }}</h5>
+                                <small>Gullar / Blumen</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="p-3 border rounded">
+                                <i class="fas fa-tree fa-2x text-success"></i>
+                                <h5>{{ stats.tree_count }}</h5>
+                                <small>Daraxtlar / Bäume</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="p-3 border rounded">
+                                <i class="fas fa-apple-alt fa-2x text-warning"></i>
+                                <h5>{{ stats.fruit_count }}</h5>
+                                <small>Mevalar / Früchte</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="p-3 border rounded">
+                                <i class="fas fa-seedling fa-2x text-success"></i>
+                                <h5>{{ stats.plant_count }}</h5>
+                                <small>O'simliklar / Pflanzen</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="p-3 border rounded">
+                                <i class="fas fa-home fa-2x text-secondary"></i>
+                                <h5>{{ stats.garden_count }}</h5>
+                                <small>Bog' / Garten</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kategoriyalar - ikkinchi qator (Qo'shimcha kategoriyalar) -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <i class="fas fa-chart-pie"></i> Qo'shimcha kategoriyalar bo'yicha taqsimot
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-watermelon fa-2x text-success"></i>
+                                <h5>{{ stats.бахча_count or 0 }}</h5>
+                                <small>🍉 Poliz ekinlari / Kürbisgewächse</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-carrot fa-2x text-warning"></i>
+                                <h5>{{ stats.овощ_count or 0 }}</h5>
+                                <small>🥕 Sabzavotlar / Gemüse</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-leaf fa-2x text-info"></i>
+                                <h5>{{ stats.бобовое_растение_count or 0 }}</h5>
+                                <small>🌿 Dukkakli o‘simlik / Hülsenfrucht</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 border rounded bg-light">
+                                <i class="fas fa-wheat-alt fa-2x text-warning"></i>
+                                <h5>{{ stats.getreide_count or 0 }}</h5>
+                                <small>🌾 Getreide / Don</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Iborani qo'shish formasi -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <i class="fas fa-plus-circle text-success"></i> Yangi frazeologizm qo'shish
+                </div>
+                <div class="card-body">
+                    <form id="addPhraseForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-flag-checkered text-danger"></i> DE Nemis iborasi / Deutsche Redensart *
+                            </label>
+                            <input type="text" name="german" class="form-control" placeholder="Masalan: Durch die Blume sagen" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-flag-checkered text-success"></i> uz O'zbekcha tarjimasi *
+                            </label>
+                            <input type="text" name="uzbek" class="form-control" placeholder="Masalan: Gul orqali aytmoq" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-book"></i> 📖 So'zma-so'z tarjimasi
+                            </label>
+                            <input type="text" name="literal" class="form-control" placeholder="Masalan: Gul orqali aytmoq">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-align-left"></i> 💡 Ma'nosi / Bedeutung
+                            </label>
+                            <textarea name="description" class="form-control" rows="2" placeholder="Nimani anglatadi? Was bedeutet die Redewendung?"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-info-circle"></i> 📚 Qo'shimcha ma'lumot / Ergänzungen
+                            </label>
+                            <textarea name="notes" class="form-control" rows="2" placeholder="Qo'shimcha izohlar, qo'llanish doirasi..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-history"></i> 📜 Kelib chiqishi / Herkunft
+                            </label>
+                            <textarea name="origin" class="form-control" rows="2" placeholder="Frazeologizmning tarixi, qayerdan kelib chiqqan..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-quote-right"></i> 🔒 Misol / Beispiel
+                            </label>
+                            <input type="text" name="example" class="form-control" placeholder="Masalan: Er hat es ihr durch die Blume gesagt">
+                        </div>
+
+                        <!-- НОВОЕ ПОЛЕ: Neytral ma'no -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-balance-scale"></i> ⚖️ Neytral ma'no / Neutrale Bedeutung
+                            </label>
+                            <input type="text" name="neutral_meaning" class="form-control"
+                                   placeholder="Masalan: Eins allein reicht nicht aus / Yolg'izlikda hech narsa qilish qiyin">
+                            <small class="text-muted">Frazeologizmning asosiy, neytral ma'nosi</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-tag"></i> 🌿 O'simlik turi / Pflanzentyp
+                            </label>
+                            <select name="plant_type" class="form-select">
+                                <option value="цветок">🌸 Gul / Blume</option>
+                                <option value="дерево">🌳 Daraxt / Baum</option>
+                                <option value="фрукт">🍎 Meva / Frucht</option>
+                                <option value="растение">🌿 O'simlik / Pflanze/Pflanzenteilen/O'simlik qismlari/O't/Kraut</option>
+                                <option value="сад">🏡 Bog' / Garten/Wald/O'rmon</option>
+                                <option value="бахча">🍉 Poliz ekinlari / Kürbisgewächse</option>
+                                <option value="овощ">🥕 Sabzavotlar / Gemüse</option>
+                                <option value="бобовое_растение">🌿Бобовое растение/ Hülsenfrucht</option>
+                                <option value="getreide">🌾 Getreide / Don</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-seedling"></i> Qo'shish / Pflanzen
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- JSON import/eksport -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <i class="fas fa-file-import"></i> JSON import/eksport
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">📥 JSON fayldan import</label>
+                        <input type="file" id="jsonFileInput" class="form-control mb-2" accept=".json">
+                        <div class="form-check mb-2">
+                            <input type="checkbox" id="overwriteCheckbox" class="form-check-input">
+                            <label class="form-check-label" for="overwriteCheckbox">
+                                Mavjud iboralarni almashtirish (aks holda yangilari qo'shiladi)
+                            </label>
+                        </div>
+                        <button id="uploadJsonBtn" class="btn btn-primary w-100">
+                            <i class="fas fa-upload"></i> JSON faylni yuklash
+                        </button>
+                    </div>
+                    <hr>
+                    <div class="mb-2">
+                        <label class="form-label fw-bold">📤 JSON eksport</label>
+                        <button id="exportJsonBtn" class="btn btn-info w-100">
+                            <i class="fas fa-download"></i> JSON faylni yuklab olish
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barcha iboralar ro'yxati -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap">
+                    <span><i class="fas fa-list"></i> Frazeologizmlar to'plami</span>
+                    <div class="d-flex gap-2">
+                        <select id="plantTypeFilter" class="form-select form-select-sm w-auto">
+                            <option value="all">🌿 Barcha turlar</option>
+                            <option value="цветок">🌸 Gullar</option>
+                            <option value="дерево">🌳 Daraxtlar</option>
+                            <option value="фрукт">🍎 Mevalar</option>
+                            <option value="растение">🌿 O'simliklar</option>
+                            <option value="сад">🏡 Bog'</option>
+                            <option value="бахча">🍉 Poliz ekinlari</option>
+                            <option value="овощ">🥕 Sabzavotlar</option>
+                            <option value="бобовое_растение">🌿 Бобовое растение</option>
+                            <option value="getreide">🌾 Getreide / Don</option>
+                        </select>
+                        <input type="text" id="tableSearch" class="form-control form-control-sm" style="width: 200px;" placeholder="Qidirish...">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">#</th>
+                                    <th>🇩🇪 Nemis</th>
+                                    <th>🇺🇿 O'zbek</th>
+                                    <th style="width: 120px;">🌿 Tur</th>
+                                    <th style="width: 80px;">📊 Ishl.</th>
+                                    <th style="width: 120px;">Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="phrasesTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center">
+                                        <div class="spinner-border text-success" role="status"></div>
+                                        <p>Yuklanmoqda...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Sahifalash -->
+                    <div class="d-flex justify-content-between align-items-center mt-3" id="paginationContainer">
+                        <div>
+                            <span class="text-muted" id="paginationInfo">Ko'rsatilgan 0 dan 0</span>
+                        </div>
+                        <nav>
+                            <ul class="pagination mb-0" id="pagination">
+                                <!-- Sahifalash JS orqali -->
+                            </ul>
+                        </nav>
+                        <div>
+                            <select id="perPageSelect" class="form-select form-select-sm w-auto">
+                                <option value="10">10 ta sahifada</option>
+                                <option value="20" selected>20 ta sahifada</option>
+                                <option value="50">50 ta sahifada</option>
+                                <option value="100">100 ta sahifada</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tahrirlash oynasi -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-edit"></i> Frazeologizmni tahrirlash</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <input type="hidden" id="editId">
+                    <div class="mb-2">
+                        <label><i class="fas fa-flag-checkered text-danger"></i> DE Nemis iborasi</label>
+                        <input type="text" id="editGerman" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label><i class="fas fa-flag-checkered text-success"></i> uz O'zbekcha tarjimasi</label>
+                        <input type="text" id="editUzbek" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label><i class="fas fa-book"></i> 📖 So'zma-so'z tarjimasi</label>
+                        <input type="text" id="editLiteral" class="form-control">
+                    </div>
+                    <div class="mb-2">
+                        <label><i class="fas fa-align-left"></i> 💡 Ma'nosi / Bedeutung</label>
+                        <textarea id="editDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label><i class="fas fa-info-circle"></i> 📚 Qo'shimcha ma'lumot / Ergänzungen</label>
+                        <textarea id="editNotes" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label><i class="fas fa-history"></i> 📜 Kelib chiqishi / Herkunft</label>
+                        <textarea id="editOrigin" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label><i class="fas fa-quote-right"></i> 🔒 Misol / Beispiel</label>
+                        <input type="text" id="editExample" class="form-control">
+                    </div>
+                    <!-- НОВОЕ ПОЛЕ: Neytral ma'no - tahrirlash oynasida -->
+                    <div class="mb-2">
+                        <label><i class="fas fa-balance-scale"></i> ⚖️ Neytral ma'no / Neutrale Bedeutung</label>
+                        <input type="text" id="editNeutralMeaning" class="form-control">
+                        <small class="text-muted">Frazeologizmning asosiy, neytral ma'nosi</small>
+                    </div>
+                    <div class="mb-2">
+                        <label><i class="fas fa-tag"></i> 🌿 O'simlik turi / Pflanzentyp</label>
+                        <select id="editPlantType" class="form-select">
+                            <option value="цветок">🌸 Gul / Blume</option>
+                            <option value="дерево">🌳 Daraxt / Baum</option>
+                            <option value="фрукт">🍎 Meva / Frucht</option>
+                            <option value="растение">🌿 O'simlik / Pflanze</option>
+                            <option value="сад">🏡 Bog' / Garten</option>
+                            <option value="бахча">🍉 Poliz ekinlari / Kürbisgewächse</option>
+                            <option value="овощ">🥕 Sabzavotlar / Gemüse</option>
+                            <option value="бобовое_растение">🌿 Dukkakli o‘simlik / Hülsenfrucht</option>
+                            <option value="getreide">🌾 Getreide / Don</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="button" id="saveEditBtn" class="btn btn-success">Saqlash</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+let currentPerPage = 20;
+let currentSearch = '';
+let currentPlantType = 'all';
+let totalPages = 1;
+let totalItems = 0;
+
+// Iboralarni sahifalash bilan yuklash
+async function loadPhrases() {
+    const tbody = document.getElementById('phrasesTableBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center"><div class="spinner-border text-success" role="status"></div><p>Yuklanmoqda...</p></td></tr>';
+
+    try {
+        let url = `/admin/api/phrases/paginated?page=${currentPage}&per_page=${currentPerPage}`;
+        if (currentSearch) url += `&search=${encodeURIComponent(currentSearch)}`;
+        if (currentPlantType && currentPlantType !== 'all') url += `&plant_type=${encodeURIComponent(currentPlantType)}`;
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.success) {
+            totalPages = result.pagination.total_pages;
+            totalItems = result.pagination.total_items;
+            renderPhrasesTable(result.data);
+            renderPagination(result.pagination);
+            updatePaginationInfo(result.pagination);
+        } else {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Xatolik: ${result.error || 'Noma\'lum xatolik'}</td></tr>`;
+        }
+    } catch(e) {
+        console.error(e);
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Ma'lumotlarni yuklashda xatolik: ${e.message}</td></tr>`;
+    }
+}
+
+// Jadvalni ko'rsatish
+function renderPhrasesTable(phrases) {
+    const tbody = document.getElementById('phrasesTableBody');
+    if (!phrases || phrases.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">🌱 Hech qanday frazeologizm mavjud emas</td></tr>';
+        return;
+    }
+
+    const startNumber = (currentPage - 1) * currentPerPage + 1;
+
+    tbody.innerHTML = phrases.map((p, index) => {
+        let typeIcon = '';
+        let typeText = '';
+        if (p.plant_type === 'цветок') { typeIcon = '🌸'; typeText = 'Gul'; }
+        else if (p.plant_type === 'дерево') { typeIcon = '🌳'; typeText = 'Daraxt'; }
+        else if (p.plant_type === 'фрукт') { typeIcon = '🍎'; typeText = 'Meva'; }
+        else if (p.plant_type === 'сад') { typeIcon = '🏡'; typeText = "Bog'"; }
+        else if (p.plant_type === 'бахча') { typeIcon = '🍉'; typeText = 'Poliz ekinlari'; }
+        else if (p.plant_type === 'овощ') { typeIcon = '🥕'; typeText = 'Sabzavotlar'; }
+        else if (p.plant_type === 'бобовое_растение') { typeIcon = '🌿'; typeText = "Dukkakli o‘simlik"; }
+        else if (p.plant_type === 'getreide') { typeIcon = '🌾'; typeText = "Getreide / Don"; }
+        else { typeIcon = '🌿'; typeText = "O'simlik"; }
+
+        const rowNumber = startNumber + index;
+
+        return `
+            <tr data-id="${p.id}">
+                <td class="text-center fw-bold">${rowNumber}</td>
+                <td class="german-cell">${escapeHtml(p.german)}</td>
+                <td class="uzbek-cell">${escapeHtml(p.uzbek)}</td>
+                <td>${typeIcon} ${typeText}</td>
+                <td class="text-center">${p.usage_count}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-warning edit-phrase me-1"
+                        data-id="${p.id}"
+                        data-german="${escapeHtml(p.german)}"
+                        data-uzbek="${escapeHtml(p.uzbek)}"
+                        data-literal="${escapeHtml(p.literal || '')}"
+                        data-description="${escapeHtml(p.description || '')}"
+                        data-notes="${escapeHtml(p.notes || '')}"
+                        data-origin="${escapeHtml(p.origin || '')}"
+                        data-example="${escapeHtml(p.example || '')}"
+                        data-plant-type="${p.plant_type || 'растение'}"
+                        data-neutral-meaning="${escapeHtml(p.neutral_meaning || '')}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger delete-phrase" data-id="${p.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    document.querySelectorAll('.edit-phrase').forEach(btn => {
+        btn.addEventListener('click', () => openEditModal(btn.dataset));
+    });
+    document.querySelectorAll('.delete-phrase').forEach(btn => {
+        btn.addEventListener('click', () => deletePhrase(btn.dataset.id));
+    });
+}
+
+// Sahifalash
+function renderPagination(pagination) {
+    const paginationUl = document.getElementById('pagination');
+    if (pagination.total_pages <= 1) { paginationUl.innerHTML = ''; return; }
+
+    let html = '';
+    html += `<li class="page-item ${!pagination.has_prev ? 'disabled' : ''}"><a class="page-link" href="#" data-page="1">««</a></li>`;
+    html += `<li class="page-item ${!pagination.has_prev ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${pagination.prev_page || 1}">«</a></li>`;
+
+    let startPage = Math.max(1, pagination.current_page - 2);
+    let endPage = Math.min(pagination.total_pages, pagination.current_page + 2);
+    if (startPage > 1) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+    for (let i = startPage; i <= endPage; i++) {
+        html += `<li class="page-item ${i === pagination.current_page ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+    }
+    if (endPage < pagination.total_pages) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+
+    html += `<li class="page-item ${!pagination.has_next ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${pagination.next_page || pagination.total_pages}">»</a></li>`;
+    html += `<li class="page-item ${!pagination.has_next ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${pagination.total_pages}">»»</a></li>`;
+
+    paginationUl.innerHTML = html;
+    document.querySelectorAll('#pagination .page-link[data-page]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = parseInt(link.dataset.page);
+            if (!isNaN(page) && page !== currentPage) {
+                currentPage = page;
+                loadPhrases();
+            }
+        });
+    });
+}
+
+function updatePaginationInfo(pagination) {
+    const start = (pagination.current_page - 1) * pagination.per_page + 1;
+    const end = Math.min(pagination.current_page * pagination.per_page, pagination.total_items);
+    const infoSpan = document.getElementById('paginationInfo');
+    if (pagination.total_items > 0) {
+        infoSpan.textContent = `Ko'rsatilgan ${start}-${end} / ${pagination.total_items} ta frazeologizmdan`;
+    } else {
+        infoSpan.textContent = `Ko'rsatilgan 0 / 0 ta frazeologizmdan`;
+    }
+    document.getElementById('totalPhrases').textContent = pagination.total_items;
+}
+
+// Qidirish va filtrlash
+let searchTimeout;
+document.getElementById('tableSearch').addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        currentSearch = e.target.value;
+        currentPage = 1;
+        loadPhrases();
+    }, 500);
+});
+
+document.getElementById('plantTypeFilter').addEventListener('change', (e) => {
+    currentPlantType = e.target.value;
+    currentPage = 1;
+    loadPhrases();
+});
+
+document.getElementById('perPageSelect').addEventListener('change', (e) => {
+    currentPerPage = parseInt(e.target.value);
+    currentPage = 1;
+    loadPhrases();
+});
+
+// Iborani qo'shish (NEUTRAL_MEANING QO'SHILDI)
+document.getElementById('addPhraseForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {
+        german: formData.get('german'),
+        uzbek: formData.get('uzbek'),
+        literal: formData.get('literal'),
+        description: formData.get('description'),
+        notes: formData.get('notes'),
+        origin: formData.get('origin'),
+        example: formData.get('example'),
+        plant_type: formData.get('plant_type'),
+        neutral_meaning: formData.get('neutral_meaning')
+    };
+
+    const response = await fetch('/admin/api/phrases', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+        loadPhrases();
+        e.target.reset();
+        alert('✅ Frazeologizm muvaffaqiyatli qo\'shildi!');
+    } else {
+        alert('❌ Qo\'shishda xatolik yuz berdi');
+    }
+});
+
+// Tahrirlash oynasini ochish (NEUTRAL_MEANING QO'SHILDI)
+function openEditModal(data) {
+    document.getElementById('editId').value = data.id;
+    document.getElementById('editGerman').value = data.german;
+    document.getElementById('editUzbek').value = data.uzbek;
+    document.getElementById('editLiteral').value = data.literal;
+    document.getElementById('editDescription').value = data.description;
+    document.getElementById('editNotes').value = data.notes;
+    document.getElementById('editOrigin').value = data.origin;
+    document.getElementById('editExample').value = data.example;
+    document.getElementById('editPlantType').value = data.plantType;
+    document.getElementById('editNeutralMeaning').value = data.neutralMeaning;
+    new bootstrap.Modal(document.getElementById('editModal')).show();
+}
+
+// O'zgarishlarni saqlash (NEUTRAL_MEANING QO'SHILDI)
+document.getElementById('saveEditBtn').addEventListener('click', async () => {
+    const id = document.getElementById('editId').value;
+    const data = {
+        german: document.getElementById('editGerman').value,
+        uzbek: document.getElementById('editUzbek').value,
+        literal: document.getElementById('editLiteral').value,
+        description: document.getElementById('editDescription').value,
+        notes: document.getElementById('editNotes').value,
+        origin: document.getElementById('editOrigin').value,
+        example: document.getElementById('editExample').value,
+        plant_type: document.getElementById('editPlantType').value,
+        neutral_meaning: document.getElementById('editNeutralMeaning').value
+    };
+
+    const response = await fetch(`/admin/api/phrases/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+        bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+        loadPhrases();
+        alert('✅ Frazeologizm muvaffaqiyatli yangilandi!');
+    } else {
+        alert('❌ Saqlashda xatolik yuz berdi');
+    }
+});
+
+// Iborani o'chirish
+async function deletePhrase(id) {
+    if (confirm('🌿 Ushbu frazeologizmni o\'chirmoqchimisiz?')) {
+        const response = await fetch(`/admin/api/phrases/${id}`, {method: 'DELETE'});
+        if (response.ok) {
+            loadPhrases();
+            alert('✅ Frazeologizm o\'chirildi');
+        } else {
+            alert('❌ O\'chirishda xatolik yuz berdi');
+        }
+    }
+}
+
+// JSON eksport
+document.getElementById('exportJsonBtn').addEventListener('click', async () => {
+    try {
+        const response = await fetch('/admin/api/export');
+        const data = await response.json();
+
+        if (data.success) {
+            const blob = new Blob([JSON.stringify(data.data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `flora_phrases_${new Date().toISOString().slice(0,19)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert(`✅ ${data.count} ta frazeologizm eksport qilindi`);
+        }
+    } catch(e) {
+        alert('❌ Eksportda xatolik yuz berdi');
+    }
+});
+
+// JSON faylni yuklash
+document.getElementById('uploadJsonBtn').addEventListener('click', async () => {
+    const fileInput = document.getElementById('jsonFileInput');
+    const file = fileInput.files[0];
+    const overwrite = document.getElementById('overwriteCheckbox').checked;
+
+    if (!file) {
+        alert('📁 JSON faylni tanlang');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('overwrite', overwrite);
+
+    const uploadBtn = document.getElementById('uploadJsonBtn');
+    uploadBtn.disabled = true;
+    uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yuklanmoqda...';
+
+    try {
+        const response = await fetch('/admin/api/upload', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            alert(`✅ ${result.message}`);
+            loadPhrases();
+        } else {
+            alert('❌ Xatolik: ' + result.error);
+        }
+    } catch(e) {
+        alert('❌ Faylni yuklashda xatolik yuz berdi');
+    } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> JSON faylni yuklash';
+        fileInput.value = '';
+    }
+});
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+loadPhrases();
+</script>
+{% endblock %}
