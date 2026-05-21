@@ -495,10 +495,10 @@ with app.app_context():
         db.create_all()
         # Создаём админа, если его нет
         if not User.query.filter_by(username='admin').first():
-            admin = User(username='admin', password_hash=generate_password_hash('admin123'))
+            admin = User(username='flora_fraz', password_hash=generate_password_hash('Flora]]12345'))
             db.session.add(admin)
             db.session.commit()
-            print("👑 Администратор создан: admin / admin123")
+            print("👑 Администратор создан: flora_fraz/ Flora]]12345")
     except Exception as e:
         print(f"Ошибка инициализации базы данных: {e}")
 
