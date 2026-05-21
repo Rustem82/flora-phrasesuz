@@ -1,2 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.so
+.Python
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Local files
+*.pyc
+.env
+.DS_Store
+*.log
+
+# Vercel local
 .vercel
-.env*.local
+
+# Temporary files
+admin_routes.py
+database.py
+main.py
+wsgi.py
+__init__.py
