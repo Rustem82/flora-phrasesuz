@@ -16,13 +16,17 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(145deg, #e8f5e9 0%, #c8e6d9 100%);
+            background-image: url('{{ url_for('static', filename='images/foto1.jpg') }}');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
             min-height: 100vh;
         }
 
-        /* Навигационная панель - природная тематика */
+        /* Навигационная панель - полупрозрачная */
         .navbar {
-            background: linear-gradient(135deg, #1b5e3f 0%, #2e7d5e 100%);
+            background: linear-gradient(135deg, rgba(27,94,63,0.95) 0%, rgba(46,125,94,0.95) 100%);
             padding: 1rem 2rem;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
@@ -62,12 +66,14 @@
             margin-right: 8px;
         }
 
+        /* Карточки полупрозрачные */
         .card {
             border: none;
             border-radius: 1.5rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             transition: transform 0.3s;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(3px);
         }
 
         .card:hover {
@@ -100,8 +106,9 @@
             color: white;
         }
 
+        /* Футер полупрозрачный */
         footer {
-            background: #1b5e3f;
+            background: rgba(27,94,63,0.95);
             color: rgba(255,255,255,0.7);
             padding: 2rem;
             margin-top: 3rem;
