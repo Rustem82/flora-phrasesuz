@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход | Флора Фразеологизмов</title>
+    <title>Kirish | Flora Frazeologizmlar</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -47,8 +47,8 @@
                         <i class="fas fa-leaf floral-icon"></i>
                         <i class="fas fa-flower floral-icon mx-2"></i>
                         <i class="fas fa-leaf floral-icon"></i>
-                        <h2 class="mt-3">🌿 Флора Фразеологизмов</h2>
-                        <p class="text-muted">Вход в сад мудрости</p>
+                        <h2 class="mt-3">🌿 Flora Frazeologizmlar</h2>
+                        <p class="text-muted">Donolik bog'iga kirish</p>
                     </div>
                     {% with messages = get_flashed_messages() %}
                         {% if messages %}
@@ -62,20 +62,20 @@
                     {% endwith %}
                     <form method="POST">
                         <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-user"></i> Садовник</label>
-                            <input type="text" name="username" class="form-control" placeholder="admin" required>
+                            <label class="form-label"><i class="fas fa-user"></i> Bog'bon</label>
+                            <input type="text" name="username" class="form-control" placeholder="flora_fraz" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-lock"></i> Пароль</label>
+                            <label class="form-label"><i class="fas fa-lock"></i> Parol</label>
                             <input type="password" name="password" class="form-control" placeholder="••••••" required>
                         </div>
                         <button type="submit" class="btn btn-success w-100">
-                            <i class="fas fa-seedling"></i> Войти в сад
+                            <i class="fas fa-seedling"></i> Bog'ga kirish
                         </button>
                     </form>
                     <div class="text-center mt-4">
                         <small class="text-muted">
-                            <i class="fas fa-info-circle"></i> admin / admin123
+                            <i class="fas fa-info-circle"></i> flora
                         </small>
                     </div>
                 </div>
