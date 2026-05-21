@@ -6,19 +6,29 @@ from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 import json
 import re
-import sqlite3
 import os
 import math
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'flora-phraseology-secret-key-2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///phrases.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'flora-phraseology-secret-key-2024')
+
+# Используем PostgreSQL на Vercel, SQLite локально
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    # Для Vercel (PostgreSQL)
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+else:
+    # Для локальной разработки (SQLite)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///phrases.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['ITEMS_PER_PAGE'] = 20
 
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Создаём папку для загрузок (только локально)
+if not os.environ.get('VERCEL'):
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -49,7 +59,7 @@ class Phrase(db.Model):
     plant_type = db.Column(db.String(50), nullable=True, default='растение')
     usage_count = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    neutral_meaning = db.Column(db.Text, nullable=True)  # НОВОЕ ПОЛЕ
+    neutral_meaning = db.Column(db.Text, nullable=True)
 
 
 class TranslationLog(db.Model):
@@ -70,38 +80,6 @@ def load_user(user_id):
 
 
 # ==================== ФУНКЦИИ ====================
-
-def migrate_database():
-    db_path = os.path.join(app.instance_path, 'phrases.db')
-    if not os.path.exists(app.instance_path):
-        os.makedirs(app.instance_path)
-    if os.path.exists(db_path):
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(phrases)")
-        columns = [column[1] for column in cursor.fetchall()]
-        if 'plant_type' not in columns:
-            cursor.execute("ALTER TABLE phrases ADD COLUMN plant_type VARCHAR(50) DEFAULT 'растение'")
-            print("✅ Колонка plant_type добавлена")
-        if 'created_at' not in columns:
-            cursor.execute("ALTER TABLE phrases ADD COLUMN created_at TIMESTAMP")
-            print("✅ Колонка created_at добавлена")
-        if 'usage_count' not in columns:
-            cursor.execute("ALTER TABLE phrases ADD COLUMN usage_count INTEGER DEFAULT 0")
-            print("✅ Колонка usage_count добавлена")
-        if 'notes' not in columns:
-            cursor.execute("ALTER TABLE phrases ADD COLUMN notes TEXT")
-            print("✅ Колонка notes добавлена")
-        if 'origin' not in columns:
-            cursor.execute("ALTER TABLE phrases ADD COLUMN origin TEXT")
-            print("✅ Колонка origin добавлена")
-        if 'neutral_meaning' not in columns:
-            cursor.execute("ALTER TABLE phrases ADD COLUMN neutral_meaning TEXT")
-            print("✅ Колонка neutral_meaning (Neytral ma'no) добавлена")
-        conn.commit()
-        conn.close()
-        print("🌿 Миграция базы данных завершена!")
-
 
 def normalize_string(s):
     if not s:
@@ -138,7 +116,6 @@ def find_best_match(german_input, direction='de2uz'):
 
 def init_db():
     with app.app_context():
-        migrate_database()
         db.create_all()
         if not User.query.filter_by(username='admin').first():
             admin = User(username='admin', password_hash=generate_password_hash('admin123'))
@@ -155,7 +132,7 @@ def init_db():
                     "notes": "Ko'pincha tanqidiy vaziyatlarda ishlatiladi",
                     "origin": "Qadimgi yunon falsafasi (Lukian)",
                     "example": "U daraxtlar tufayli o'rmonni ko'rmaydi va loyihaning barbod bo'layotganini sezmaydi.",
-                    "plant_type": "derevo",
+                    "plant_type": "дерево",
                     "neutral_meaning": "Vor lauter Details das Wesentliche übersehen"
                 },
                 {
@@ -166,7 +143,7 @@ def init_db():
                     "notes": "Nozik va muloyimlik bilan gapirish usuli.",
                     "origin": "O'rta asrlar Yevropasidagi gul tili (floriografiya) dan",
                     "example": "Er hat es ihr durch die Blume gesagt, dass er sie mag.",
-                    "plant_type": "tsvetok",
+                    "plant_type": "цветок",
                     "neutral_meaning": "Etwas indirekt, versteckt oder höflich andeuten"
                 }
             ]
@@ -395,11 +372,25 @@ def admin_dashboard():
     plant_count = Phrase.query.filter_by(plant_type='растение').count()
     grass_count = Phrase.query.filter_by(plant_type='трава').count()
     garden_count = Phrase.query.filter_by(plant_type='сад').count()
-    poliz_count = Phrase.query.filter_by(plant_type='poliz').count()
-    sabzavot_count = Phrase.query.filter_by(plant_type='sabzavot').count()
-    osimlik_qismi_count = Phrase.query.filter_by(plant_type='osimlik_qismi').count()
+    poliz_count = Phrase.query.filter_by(plant_type='бахча').count()
+    sabzavot_count = Phrase.query.filter_by(plant_type='овощ').count()
+    bobovoe_count = Phrase.query.filter_by(plant_type='бобовое_растение').count()
     getreide_count = Phrase.query.filter_by(plant_type='getreide').count()
-    stats = {'total_phrases': total_phrases, 'total_translations': total_translations, 'successful_matches': success_rate, 'flower_count': flower_count, 'tree_count': tree_count, 'fruit_count': fruit_count, 'plant_count': plant_count, 'grass_count': grass_count, 'garden_count': garden_count, 'poliz_count': poliz_count, 'sabzavot_count': sabzavot_count, 'osimlik_qismi_count': osimlik_qismi_count, 'getreide_count': getreide_count}
+    stats = {
+        'total_phrases': total_phrases,
+        'total_translations': total_translations,
+        'successful_matches': success_rate,
+        'flower_count': flower_count,
+        'tree_count': tree_count,
+        'fruit_count': fruit_count,
+        'plant_count': plant_count,
+        'grass_count': grass_count,
+        'garden_count': garden_count,
+        'poliz_count': poliz_count,
+        'sabzavot_count': sabzavot_count,
+        'bobovoe_count': bobovoe_count,
+        'getreide_count': getreide_count
+    }
     return render_template('admin/dashboard.html', stats=stats, top_phrases=top_phrases, items_per_page=app.config['ITEMS_PER_PAGE'])
 
 
@@ -497,6 +488,19 @@ def get_phrases_paginated_public():
         return jsonify({'success': False, 'error': str(e), 'data': [], 'pagination': {'current_page': 1, 'per_page': per_page, 'total_items': 0, 'total_pages': 0, 'has_prev': False, 'has_next': False, 'prev_page': None, 'next_page': None}}), 200
 
 
+# ==================== ДЛЯ VERCEL ====================
+# Инициализируем базу данных при запуске
+with app.app_context():
+    try:
+        db.create_all()
+        # Создаём админа, если его нет
+        if not User.query.filter_by(username='admin').first():
+            admin = User(username='admin', password_hash=generate_password_hash('admin123'))
+            db.session.add(admin)
+            db.session.commit()
+            print("👑 Администратор создан: admin / admin123")
+    except Exception as e:
+        print(f"Ошибка инициализации базы данных: {e}")
+
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True, host='0.0.0.0', port=5000)
