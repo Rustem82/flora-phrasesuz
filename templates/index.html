@@ -1,152 +1,1466 @@
 {% extends "base.html" %}
 
-{% block title %}Flora Redewendungen | Deutsch-usbekisches Wörterbuch der Blumen und Pflanzen{% endblock %}
+{% block title %}Flora Redewendungen | Nemischa-o'zbekcha frazeologizmlar lug'ati{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in-up { animation: fadeInUp 0.5s ease-out; }
+
+    .search-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .search-card:hover { transform: translateY(-5px); box-shadow: 0 30px 50px rgba(0,0,0,0.12); }
+
+    .search-header {
+        background: linear-gradient(135deg, #2e7d5e 0%, #1b5e3f 100%);
+        padding: 1.2rem 1.5rem;
+        color: white;
+    }
+
+    .search-header h5 { margin: 0; font-weight: 600; }
+    .search-header i { margin-right: 10px; }
+
+    .live-search-container { position: relative; }
+
+    .search-input-live {
+        border: 2px solid #e0e0e0;
+        border-radius: 60px;
+        padding: 0.9rem 1.5rem;
+        font-size: 1rem;
+        transition: all 0.3s;
+        width: 100%;
+        background: white;
+    }
+
+    .search-input-live:focus {
+        border-color: #2e7d5e;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46,125,94,0.2);
+    }
+
+    .clear-search-btn {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 5px;
+        transition: all 0.3s;
+    }
+
+    .clear-search-btn:hover { color: #dc3545; }
+
+    .search-options-card {
+        background: #f8f9fa;
+        border-radius: 20px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .option-group {
+        margin-bottom: 20px;
+    }
+
+    .option-group-title {
+        font-weight: 600;
+        color: #2e7d5e;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+        border-left: 3px solid #2e7d5e;
+        padding-left: 10px;
+    }
+
+    .mode-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .mode-btn {
+        flex: 1;
+        text-align: center;
+        padding: 10px 15px;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 500;
+        background: white;
+        border: 2px solid #dee2e6;
+        font-size: 0.85rem;
+        min-width: 100px;
+    }
+
+    .mode-btn:hover {
+        background: rgba(46,125,94,0.1);
+        border-color: #2e7d5e;
+        transform: translateY(-2px);
+    }
+
+    .mode-btn.active {
+        background: #2e7d5e;
+        color: white;
+        border-color: #2e7d5e;
+        box-shadow: 0 4px 12px rgba(46,125,94,0.3);
+    }
+
+    .mode-btn i { margin-right: 8px; }
+
+    .option-group-center {
+        text-align: center;
+    }
+
+    .option-group-center .option-group-title {
+        text-align: center;
+        border-left: none;
+        border-bottom: 3px solid #2e7d5e;
+        padding-left: 0;
+        padding-bottom: 8px;
+        display: inline-block;
+    }
+
+    .checkbox-group-center {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .search-areas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .search-area-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        background: white;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 1px solid #dee2e6;
+    }
+
+    .search-area-item:hover {
+        background: #e8f5e9;
+        transform: translateY(-2px);
+        border-color: #2e7d5e;
+    }
+
+    .search-area-item input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #2e7d5e;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        justify-content: center;
+    }
+
+    .btn-search {
+        background: linear-gradient(135deg, #2e7d5e 0%, #1b5e3f 100%);
+        border: none;
+        border-radius: 60px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s;
+        color: white;
+        box-shadow: 0 5px 15px rgba(46,125,94,0.3);
+    }
+
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(46,125,94,0.4);
+    }
+
+    .btn-reset {
+        background: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 60px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-reset:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+    }
+
+    .filter-btn {
+        border-radius: 50px;
+        padding: 8px 18px;
+        margin: 5px;
+        transition: all 0.3s;
+        font-weight: 500;
+        border: 2px solid #dee2e6;
+        background: white;
+        font-size: 0.85rem;
+    }
+
+    .filter-btn:hover { transform: translateY(-2px); border-color: #2e7d5e; color: #2e7d5e; }
+
+    .filter-btn.active {
+        background: linear-gradient(135deg, #2e7d5e 0%, #1b5e3f 100%);
+        border-color: #2e7d5e;
+        color: white;
+        box-shadow: 0 5px 15px rgba(46,125,94,0.3);
+    }
+
+    .filter-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .phrase-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.05);
+        animation: fadeInUp 0.3s ease-out;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .phrase-card:hover { transform: translateY(-8px); box-shadow: 0 20px 35px rgba(46,125,94,0.15); }
+
+    .phrase-card .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .pagination-custom .page-item .page-link {
+        border-radius: 50px;
+        margin: 0 3px;
+        color: #2e7d5e;
+        border: none;
+        padding: 8px 15px;
+        transition: all 0.3s;
+    }
+
+    .pagination-custom .page-item.active .page-link {
+        background: linear-gradient(135deg, #2e7d5e 0%, #1b5e3f 100%);
+        color: white;
+        box-shadow: 0 5px 15px rgba(46,125,94,0.3);
+    }
+
+    .pagination-custom .page-item .page-link:hover {
+        background: #e8f5e9;
+        transform: translateY(-2px);
+    }
+
+    .alert-info-custom {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6d9 100%);
+        border: none;
+        border-radius: 20px;
+        color: #1b5e3f;
+        padding: 15px 25px;
+    }
+
+    .type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .example-phrases {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .example-chip {
+        background: #f0f0f0;
+        border-radius: 50px;
+        padding: 6px 15px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: #2e7d5e;
+    }
+
+    .example-chip:hover {
+        background: #2e7d5e;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .search-highlight {
+        background-color: #ffeb3b;
+        padding: 0 2px;
+        border-radius: 3px;
+        font-weight: bold;
+    }
+
+    .btn-meaning, .btn-neutral, .btn-origin {
+        border: none;
+        border-radius: 50px;
+        padding: 8px 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        transition: all 0.3s;
+        text-align: center;
+    }
+
+    .btn-meaning {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6d9 100%);
+        color: #2e7d5e;
+    }
+
+    .btn-meaning:hover {
+        background: linear-gradient(135deg, #2e7d5e 0%, #1b5e3f 100%);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-neutral {
+        background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+        color: #f57c00;
+    }
+
+    .btn-neutral:hover {
+        background: linear-gradient(135deg, #f57c00 0%, #e65100 100%);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-origin {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdef5 100%);
+        color: #1565c0;
+    }
+
+    .btn-origin:hover {
+        background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-meaning i, .btn-neutral i, .btn-origin i {
+        margin-right: 5px;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .button-group .btn-meaning,
+    .button-group .btn-neutral,
+    .button-group .btn-origin {
+        flex: 1;
+    }
+
+    .modal-content {
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .modal-header-meaning {
+        background: linear-gradient(135deg, #2e7d5e 0%, #1b5e3f 100%);
+        color: white;
+    }
+
+    .modal-header-neutral {
+        background: linear-gradient(135deg, #f57c00 0%, #e65100 100%);
+        color: white;
+    }
+
+    .modal-header-origin {
+        background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+        color: white;
+    }
+
+    .info-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 12px;
+    }
+
+    .info-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-section-title {
+        font-weight: 700;
+        color: #2e7d5e;
+        margin-bottom: 10px;
+        font-size: 1rem;
+        border-left: 3px solid #2e7d5e;
+        padding-left: 10px;
+    }
+
+    .info-section-title-neutral {
+        color: #f57c00;
+        border-left-color: #f57c00;
+    }
+
+    .info-section-title-origin {
+        color: #1565c0;
+        border-left-color: #1565c0;
+    }
+
+    .info-text {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #333;
+    }
+
+    @media (max-width: 768px) {
+        .filter-btn { padding: 6px 10px; font-size: 0.7rem; }
+        .search-input-live { font-size: 0.9rem; padding: 0.7rem 1.2rem; }
+        .mode-buttons { flex-direction: column; }
+        .mode-btn { width: 100%; }
+        .checkbox-group-center { flex-direction: column; align-items: center; }
+        .search-areas { flex-direction: column; align-items: center; }
+        .button-group { flex-direction: column; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container py-4">
-    <div class="row">
-        <div class="col-12 text-center mb-4">
-            <div class="floral-header">
-                <i class="fas fa-seedling fa-2x" style="color: #4a7c59;"></i>
-                <i class="fas fa-leaf fa-2x mx-2" style="color: #6b8c5c;"></i>
-                <i class="fas fa-feather-alt fa-2x" style="color: #8ba86e;"></i>
-            </div>
-            <h1 class="display-5 fw-bold" style="color: #2d5a3f;">
-                <i class="fas fa-leaf"></i> Flora Redewendungen
-            </h1>
-            <p class="lead">Deutsche Redewendungen über Blumen, Bäume und Pflanzen → Usbekische Entsprechungen</p>
-            <div class="flower-divider">
-                <span class="flower">✿</span> <span class="flower">🌸</span> <span class="flower">🌼</span> <span class="flower">✿</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card garden-card">
-                <div class="card-body p-4">
-                    <div class="row g-4">
-                        <div class="col-md-5">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-tree"></i> Deutsch
-                            </label>
-                            <textarea id="sourceText" class="form-control" rows="4"
-                                placeholder="🌿 Deutsche Redewendung über Flora eingeben...
-Z.B.: Durch die Blume sagen"></textarea>
-                        </div>
-                        <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
-                            <button id="swapBtn" class="btn btn-outline-success rounded-circle" style="width: 55px; height: 55px;">
-                                <i class="fas fa-arrows-alt-h fa-lg"></i>
-                            </button>
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-flower"></i> Usbekisch (O‘zbekcha)
-                            </label>
-                            <textarea id="targetText" class="form-control bg-light" rows="4" readonly
-                                placeholder="🌸 Die Übersetzung erscheint hier..."></textarea>
-                        </div>
-                    </div>
-
-                    <div class="row mt-4">
-                        <div class="col-12 d-flex gap-3 justify-content-center">
-                            <button id="translateBtn" class="btn btn-success btn-lg">
-                                <i class="fas fa-seedling"></i> Übersetzen
-                            </button>
-                            <button id="clearBtn" class="btn btn-outline-secondary btn-lg">
-                                <i class="fas fa-leaf"></i> Löschen
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 p-3 bg-success bg-opacity-10 rounded-3 border-start border-success border-4">
-                        <small>
-                            <i class="fas fa-info-circle text-success"></i>
-                            <span id="translationNote" class="text-dark">🌷 Geben Sie eine deutsche Redewendung über Blumen, Bäume oder Pflanzen ein und klicken Sie auf „Übersetzen“</span>
-                        </small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Beliebte Flora-Redewendungen -->
-    <div class="row mt-5">
+    <div class="row text-center mb-4 fade-in-up">
         <div class="col-12">
-            <h3 class="text-center mb-4">
-                <i class="fas fa-star text-warning"></i> Beliebte Redewendungen über Flora
-                <i class="fas fa-star text-warning"></i>
-            </h3>
-            <div class="row g-3" id="examplePhrases">
-                <div class="col-12 text-center">
-                    <div class="spinner-border text-success" role="status"></div>
-                    <p>Lade Weisheiten der Blumen...</p>
+            <div class="floral-decoration mb-3">
+                <i class="fas fa-leaf fa-2x" style="color: #4a7c59;"></i>
+                <i class="fas fa-flower fa-2x mx-2" style="color: #e3b23c;"></i>
+                <i class="fas fa-tree fa-2x" style="color: #2e7d5e;"></i>
+            </div>
+            <h1 class="display-5 fw-bold" style="color: #1b5e3f; margin-top: -10px;">
+                <i class="fas fa-leaf me-2"></i> Flora komponentli frazeologizmlar
+            </h1>
+            <p class="lead text-muted" style="margin-top: -5px;">
+                Deutsch-usbekisches Wörterbuch der Frazeologizmen mit Florakomponenten<br>
+                <small>Flora komponentli frazeologizmlarning nemischa-o'zbekcha lug'ati</small>
+            </p>
+            <div class="mt-2">
+                <div class="badge-group-primary">
+                <span class="badge bg-success me-2 px-3 py-2">🌸 Blumen / Gullar</span>
+                <span class="badge bg-success me-2 px-3 py-2">🌳 Bäume / Daraxtlar</span>
+                <span class="badge bg-success me-2 px-3 py-2">🍎 Früchte / Mevalar</span>
+                <span class="badge bg-success me-2 px-3 py-2">🌿 Pflanzen / O'simliklar/Pflanzenteilen/O'simlik qismlari/</span>
+                <span class="badge bg-success me-2 px-3 py-2">🏡 Garten / Bog'/-Wald/O'rmon</span>
+                <span class="badge bg-success me-2 px-3 py-2">🍉 die Kürbisgewächse/Poliz ekinlari </span>
+                <span class="badge bg-success me-2 px-3 py-2">🥕 Gemüse/Sabzavotlar</span>
+                <span class="badge bg-success me-2 px-3 py-2">🌿 Hülsenfrucht/Dukkakli o‘simlik</span>
+                <span class="badge bg-success px-3 py-2">🌾 Getreide / Don / </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4 fade-in-up">
+        <div class="col-lg-10 mx-auto">
+            <div class="search-card">
+                <div class="search-header">
+                    <h5><i class="fas fa-search"></i> Redewendung suchen / Frazeologizm qidirish</h5>
                 </div>
+                <div class="card-body p-4">
+                    <div class="live-search-container">
+                        <input type="text" id="liveSearchInput" class="search-input-live"
+                            placeholder="🔍 Deutsche Redewendung eingeben...
+z.B.: durch die Blume sagen, den Wald vor lauter Bäumen nicht sehen...">
+                        <button class="clear-search-btn" id="clearLiveSearchBtn" title="Löschen / Tozalash">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+
+                    <div class="search-options-card">
+                        <div class="option-group">
+                            <div class="option-group-title">
+                                <i class="fas fa-sliders-h"></i> Suchbedingung / Qidiruv sharti:
+                            </div>
+                            <div class="mode-buttons" id="searchModeGroup">
+                                <button type="button" class="mode-btn active" data-mode="relevant">
+                                    <i class="fas fa-chart-line"></i> nach Relevanz / Moslik
+                                </button>
+                                <button type="button" class="mode-btn" data-mode="any">
+                                    <i class="fas fa-tag"></i> eines der Wörter / So'zlardan biri
+                                </button>
+                                <button type="button" class="mode-btn" data-mode="all">
+                                    <i class="fas fa-list"></i> alle Wörter / Barcha so'zlar
+                                </button>
+                                <button type="button" class="mode-btn" data-mode="exact">
+                                    <i class="fas fa-quote-right"></i> genauer Text / Aniq matn
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="option-group option-group-center">
+                            <div class="option-group-title">
+                                <i class="fas fa-cog"></i> Optionen / Opsiyalar:
+                            </div>
+                            <div class="checkbox-group-center">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" id="wholeWordsOnly">
+                                    <span>🔤 nur ganze Wörter / Faqat butun so'zlar</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <div class="option-group-title">
+                                <i class="fas fa-book-open"></i> Suchen in / Qidirish sohalari:
+                            </div>
+                            <div class="search-areas" id="searchAreasContainer">
+                                <label class="search-area-item">
+                                    <input type="checkbox" class="search-field-checkbox" id="searchGerman" checked>
+                                    <span><i class="fas fa-flag-checkered"></i> Redensart / Nemischa ibora</span>
+                                </label>
+                                <label class="search-area-item">
+                                    <input type="checkbox" class="search-field-checkbox" id="searchGermanVariants">
+                                    <span><i class="fas fa-code-branch"></i> mit Varianten / Variantlar bilan</span>
+                                </label>
+                                <label class="search-area-item">
+                                    <input type="checkbox" class="search-field-checkbox" id="searchUzbek" checked>
+                                    <span><i class="fas fa-language"></i> Bedeutung / Ma'nosi</span>
+                                </label>
+                                <label class="search-area-item">
+                                    <input type="checkbox" class="search-field-checkbox" id="searchDescription" checked>
+                                    <span><i class="fas fa-align-left"></i> Beschreibung / Tavsif</span>
+                                </label>
+                                <label class="search-area-item">
+                                    <input type="checkbox" class="search-field-checkbox" id="searchOrigin">
+                                    <span><i class="fas fa-history"></i> Herkunft / Kelib chiqishi</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="advancedSearchBtn" class="btn-search">
+                                <i class="fas fa-search"></i> Suchen / Qidirish
+                            </button>
+                            <button id="resetSearchBtn" class="btn-reset">
+                                <i class="fas fa-undo-alt"></i> Zurücksetzen / Tiklash
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="example-phrases">
+                        <span class="text-muted small me-2">Beispiele / Misollar:</span>
+                        <span class="example-chip" data-phrase="durch die Blume sagen">🌸 durch die Blume sagen</span>
+                        <span class="example-chip" data-phrase="Schwein haben">🐷 Schwein haben</span>
+                        <span class="example-chip" data-phrase="den Wald vor lauter Bäumen nicht sehen">🌲 den Wald vor lauter Bäumen nicht sehen</span>
+                        <span class="example-chip" data-phrase="die Wurzeln schlagen">🌿 die Wurzeln schlagen</span>
+                        <span class="example-chip" data-phrase="in den sauren Apfel beißen">🍎 in den sauren Apfel beißen</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4 fade-in-up">
+        <div class="col-12">
+            <div class="text-center mb-3">
+                <h5><i class="fas fa-filter text-success"></i> Filtern nach / Filtrlash</h5>
+            </div>
+            <div class="filter-container" id="filterButtons">
+                <button class="filter-btn active" data-filter="all">🌿 Alle / Hammasi <span class="badge bg-success ms-1" id="countAll">0</span></button>
+                <button class="filter-btn" data-filter="цветок">🌸 Blumen / Gullar <span class="badge bg-secondary ms-1" id="countFlower">0</span></button>
+                <button class="filter-btn" data-filter="дерево">🌳 Bäume / Daraxtlar <span class="badge bg-secondary ms-1" id="countTree">0</span></button>
+                <button class="filter-btn" data-filter="фрукт">🍎 Früchte / Mevalar <span class="badge bg-secondary ms-1" id="countFruit">0</span></button>
+                <button class="filter-btn" data-filter="растение">🌿 Pflanzen / O'simliklar/Pflanzenteilen/O'simlik qismlari/Kräuter/O'tlar <span class="badge bg-secondary ms-1" id="countPlant">0</span></button>
+                <button class="filter-btn" data-filter="сад">🏡 Garten / Bog'/Wald/O'rmon/ <span class="badge bg-secondary ms-1" id="countGarden">0</span></button>
+                <button class="filter-btn" data-filter="бахча">🍉die Kürbisgewächse /Poliz ekinlari  <span class="badge bg-secondary ms-1" id="countPoliz">0</span></button>
+                <button class="filter-btn" data-filter="овощ">🥕 Gemüse /Sabzavotlar <span class="badge bg-secondary ms-1" id="countовощ">0</span></button>
+                <button class="filter-btn" data-filter="бобовое_растение" style="margin-right: 20px;">🌿 die Hülsenfrucht /Dukkakli o‘simlik <span class="badge bg-secondary ms-1" id="countOsimlikQismi">0</span></button>
+                <button class="filter-btn" data-filter="getreide" style="margin-left: 20px;">🌾 Getreide / Don  <span class="badge bg-secondary ms-1" id="countGetreide">0</span></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3" id="searchStats" style="display: none;">
+        <div class="col-12">
+            <div class="alert alert-info-custom fade-in-up">
+                <i class="fas fa-search me-2"></i>
+                <span id="searchResultInfo"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3 fade-in-up">
+        <div class="col-12 d-flex justify-content-end">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted"><i class="fas fa-eye"></i> Anzeigen / Ko'rsatish:</span>
+                <select id="perPageSelect" class="form-select form-select-sm rounded-pill" style="width: auto;">
+                    <option value="12">12 pro Seite</option>
+                    <option value="24" selected>24 pro Seite</option>
+                    <option value="48">48 pro Seite</option>
+                    <option value="96">96 pro Seite</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="phrasesGrid">
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status"></div>
+            <p class="mt-3 text-muted">🌱 Lade Redewendungen / Yuklanmoqda...</p>
+        </div>
+    </div>
+
+    <div class="row mt-4" id="paginationContainer" style="display: none;">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div><span class="text-muted" id="paginationInfo"></span></div>
+                <nav><ul class="pagination pagination-custom mb-0" id="pagination"></ul></nav>
+                <div><span class="text-muted" id="totalPagesInfo"></span></div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .garden-card {
-        background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,248,240,0.95));
-        border: 1px solid rgba(74,124,89,0.3);
-    }
-    .flower-divider {
-        text-align: center;
-        margin: 10px 0;
-    }
-    .flower {
-        display: inline-block;
-        margin: 0 5px;
-        color: #e3b23c;
-        font-size: 1.2rem;
-    }
-    .floral-header i {
-        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
-    }
-</style>
+<!-- Модальное окно для Bedeutung / Ma'nosi -->
+<div class="modal fade" id="meaningModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header modal-header-meaning">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle"></i> Bedeutung / Ma'nosi
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="meaningModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Schließen / Yopish
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для Neytral ma'no / Neutrale Bedeutung -->
+<div class="modal fade" id="neutralModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header modal-header-neutral">
+                <h5 class="modal-title">
+                    <i class="fas fa-balance-scale"></i> Neytral ma'no / Neutrale Bedeutung
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="neutralModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Schließen / Yopish
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для Herkunft / Kelib chiqishi -->
+<div class="modal fade" id="originModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header modal-header-origin">
+                <h5 class="modal-title">
+                    <i class="fas fa-history"></i> Herkunft / Kelib chiqishi
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="originModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Schließen / Yopish
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-let currentDirection = 'de2uz';
-let phrases = [];
+let allPhrases = [];
+let filteredPhrases = [];
+let currentPage = 1;
+let currentPerPage = 24;
+let currentFilter = 'all';
+let currentSearch = '';
 
-async function loadExamples() {
+let searchMode = 'relevant';
+let wholeWordsOnly = false;
+
+let searchGerman = true;
+let searchGermanVariants = false;
+let searchUzbek = true;
+let searchDescription = true;
+let searchOrigin = false;
+
+const liveSearchInput = document.getElementById('liveSearchInput');
+
+// Функция для показа модального окна со значением (Bedeutung)
+function showMeaning(phrase) {
+    const modalBody = document.getElementById('meaningModalBody');
+
+    let html = `
+        <div class="info-section">
+            <div class="info-section-title">
+                <i class="fas fa-flag-checkered text-danger"></i> Deutsche Redewendung / Nemischa ibora:
+            </div>
+            <div class="info-text">
+                <strong>${escapeHtml(phrase.german)}</strong>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title">
+                <i class="fas fa-language text-success"></i> Usbekische Übersetzung / O'zbekcha tarjima:
+            </div>
+            <div class="info-text">
+                ${escapeHtml(phrase.uzbek)}
+            </div>
+        </div>
+    `;
+
+    if (phrase.literal) {
+        html += `
+            <div class="info-section">
+                <div class="info-section-title">
+                    <i class="fas fa-book"></i> 📖 Wörtliche Übersetzung / So'zma-so'z tarjima:
+                </div>
+                <div class="info-text">
+                    ${escapeHtml(phrase.literal)}
+                </div>
+            </div>
+        `;
+    }
+
+    if (phrase.description) {
+        html += `
+            <div class="info-section" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6d9 100%);">
+                <div class="info-section-title">
+                    <i class="fas fa-align-left"></i> 💡 Bedeutung / Ma'nosi:
+                </div>
+                <div class="info-text">
+                    ${escapeHtml(phrase.description)}
+                </div>
+            </div>
+        `;
+    }
+
+    if (phrase.example) {
+        html += `
+            <div class="info-section" style="background: #fff8e1;">
+                <div class="info-section-title">
+                    <i class="fas fa-quote-left"></i> 📌 Beispiel / Misol:
+                </div>
+                <div class="info-text">
+                    <em>"${escapeHtml(phrase.example)}"</em>
+                </div>
+            </div>
+        `;
+    }
+
+    modalBody.innerHTML = html;
+    new bootstrap.Modal(document.getElementById('meaningModal')).show();
+}
+
+// Функция для показа модального окна с нейтральным значением (Neytral ma'no)
+function showNeutral(phrase) {
+    const modalBody = document.getElementById('neutralModalBody');
+
+    let html = `
+        <div class="info-section">
+            <div class="info-section-title info-section-title-neutral">
+                <i class="fas fa-flag-checkered text-danger"></i> Deutsche Redewendung / Nemischa ibora:
+            </div>
+            <div class="info-text">
+                <strong>${escapeHtml(phrase.german)}</strong>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title info-section-title-neutral">
+                <i class="fas fa-language text-success"></i> Usbekische Übersetzung / O'zbekcha tarjima:
+            </div>
+            <div class="info-text">
+                ${escapeHtml(phrase.uzbek)}
+            </div>
+        </div>
+    `;
+
+    if (phrase.neutral_meaning) {
+        html += `
+            <div class="info-section" style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);">
+                <div class="info-section-title info-section-title-neutral">
+                    <i class="fas fa-balance-scale"></i> ⚖️ Neytral ma'no / Neutrale Bedeutung:
+                </div>
+                <div class="info-text">
+                    ${escapeHtml(phrase.neutral_meaning)}
+                </div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="info-section" style="background: #fff8e1;">
+                <div class="info-section-title info-section-title-neutral">
+                    <i class="fas fa-balance-scale"></i> ⚖️ Neytral ma'no / Neutrale Bedeutung:
+                </div>
+                <div class="info-text">
+                    <em>Keine neutrale Bedeutung verfügbar / Neytral ma'no mavjud emas</em>
+                </div>
+            </div>
+        `;
+    }
+
+    if (phrase.example) {
+        html += `
+            <div class="info-section">
+                <div class="info-section-title">
+                    <i class="fas fa-quote-left"></i> 📌 Beispiel / Misol:
+                </div>
+                <div class="info-text">
+                    <em>"${escapeHtml(phrase.example)}"</em>
+                </div>
+            </div>
+        `;
+    }
+
+    modalBody.innerHTML = html;
+    new bootstrap.Modal(document.getElementById('neutralModal')).show();
+}
+
+// Функция для показа модального окна с происхождением (Herkunft)
+function showOrigin(phrase) {
+    const modalBody = document.getElementById('originModalBody');
+
+    let html = `
+        <div class="info-section">
+            <div class="info-section-title info-section-title-origin">
+                <i class="fas fa-flag-checkered text-danger"></i> Deutsche Redewendung / Nemischa ibora:
+            </div>
+            <div class="info-text">
+                <strong>${escapeHtml(phrase.german)}</strong>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-title info-section-title-origin">
+                <i class="fas fa-language text-success"></i> Usbekische Übersetzung / O'zbekcha tarjima:
+            </div>
+            <div class="info-text">
+                ${escapeHtml(phrase.uzbek)}
+            </div>
+        </div>
+    `;
+
+    if (phrase.origin) {
+        html += `
+            <div class="info-section" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdef5 100%);">
+                <div class="info-section-title info-section-title-origin">
+                    <i class="fas fa-history"></i> 📜 Herkunft / Kelib chiqishi:
+                </div>
+                <div class="info-text">
+                    ${escapeHtml(phrase.origin)}
+                </div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="info-section" style="background: #e3f2fd;">
+                <div class="info-section-title info-section-title-origin">
+                    <i class="fas fa-history"></i> 📜 Herkunft / Kelib chiqishi:
+                </div>
+                <div class="info-text">
+                    <em>Keine Herkunftsinformationen verfügbar / Kelib chiqishi haqida ma'lumot mavjud emas</em>
+                </div>
+            </div>
+        `;
+    }
+
+    if (phrase.example) {
+        html += `
+            <div class="info-section">
+                <div class="info-section-title">
+                    <i class="fas fa-quote-left"></i> 📌 Beispiel / Misol:
+                </div>
+                <div class="info-text">
+                    <em>"${escapeHtml(phrase.example)}"</em>
+                </div>
+            </div>
+        `;
+    }
+
+    modalBody.innerHTML = html;
+    new bootstrap.Modal(document.getElementById('originModal')).show();
+}
+
+function getSearchableText(phrase) {
+    let textParts = [];
+
+    if (searchGerman) {
+        let germanText = phrase.german;
+        if (searchGermanVariants) {
+            germanText = normalizeString(phrase.german) + ' ' + phrase.german;
+        }
+        textParts.push(germanText);
+    }
+
+    if (searchUzbek) {
+        textParts.push(phrase.uzbek);
+    }
+
+    if (searchDescription) {
+        let descriptionText = (phrase.description || '') + ' ' + (phrase.literal || '');
+        textParts.push(descriptionText);
+    }
+
+    if (searchOrigin) {
+        textParts.push(phrase.origin || '');
+    }
+
+    return textParts.join(' ').toLowerCase();
+}
+
+function normalizeString(str) {
+    if (!str) return '';
+    let normalized = str.toLowerCase().trim();
+    normalized = normalized.replace(/[^\w\s]/g, '');
+    normalized = normalized.replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+    return normalized;
+}
+
+function calculateRelevance(phrase, searchTerm) {
+    if (!searchTerm) return 0;
+
+    let searchText = searchTerm.toLowerCase();
+    let searchWords = searchText.split(/\s+/).filter(w => w.length >= 2);
+
+    if (searchWords.length === 0) return 0;
+
+    let fullText = getSearchableText(phrase);
+
+    let totalRelevance = 0;
+
+    for (let word of searchWords) {
+        let wordRegex = new RegExp(`\\b${escapeRegex(word)}\\b`, 'gi');
+        let exactMatches = (fullText.match(wordRegex) || []).length;
+        totalRelevance += exactMatches * 3;
+
+        let partialMatches = (fullText.split(word).length - 1);
+        if (partialMatches > 0 && exactMatches === 0) {
+            totalRelevance += partialMatches;
+        }
+    }
+
+    return totalRelevance;
+}
+
+function searchInPhrase(phrase, searchTerm) {
+    if (!searchTerm) return true;
+
+    let searchText = searchTerm.toLowerCase();
+    let fullText = getSearchableText(phrase);
+
+    let searchWords = searchText.split(/\s+/);
+
+    if (searchMode === 'exact') {
+        if (wholeWordsOnly) {
+            let regex = new RegExp(`\\b${escapeRegex(searchText)}\\b`, 'i');
+            return regex.test(fullText);
+        } else {
+            return fullText.includes(searchText);
+        }
+    } else if (searchMode === 'any') {
+        for (let word of searchWords) {
+            if (word.length < 2) continue;
+            if (wholeWordsOnly) {
+                let regex = new RegExp(`\\b${escapeRegex(word)}\\b`, 'i');
+                if (regex.test(fullText)) return true;
+            } else {
+                if (fullText.includes(word)) return true;
+            }
+        }
+        return false;
+    } else if (searchMode === 'all') {
+        for (let word of searchWords) {
+            if (word.length < 2) continue;
+            if (wholeWordsOnly) {
+                let regex = new RegExp(`\\b${escapeRegex(word)}\\b`, 'i');
+                if (!regex.test(fullText)) return false;
+            } else {
+                if (!fullText.includes(word)) return false;
+            }
+        }
+        return searchWords.length > 0;
+    }
+
+    return false;
+}
+
+async function loadAllPhrases() {
     try {
         const response = await fetch('/api/phrases');
-        phrases = await response.json();
-        const examplesDiv = document.getElementById('examplePhrases');
-        examplesDiv.innerHTML = phrases.slice(0, 6).map(p => {
-            let icon = '🌿';
-            if (p.plant_type === 'цветок') icon = '🌸';
-            else if (p.plant_type === 'дерево') icon = '🌳';
-            else if (p.plant_type === 'фрукт') icon = '🍎';
-            return `
-            <div class="col-md-4 col-lg-4">
-                <div class="card h-100 border-success">
-                    <div class="card-body">
-                        <h6 class="card-title text-success">${icon} ${escapeHtml(p.german)}</h6>
-                        <p class="card-text small text-secondary">${escapeHtml(p.uzbek)}</p>
-                        <button class="btn btn-sm btn-outline-success use-example" data-text="${escapeHtml(p.german)}">
-                            <i class="fas fa-seedling"></i> Verwenden
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-        }).join('');
-
-        document.querySelectorAll('.use-example').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.getElementById('sourceText').value = btn.dataset.text;
-                if (currentDirection !== 'de2uz') {
-                    document.getElementById('swapBtn').click();
-                }
-            });
-        });
+        allPhrases = await response.json();
+        updateCounters();
+        filterAndRender();
     } catch(e) {
-        console.error(e);
+        console.error('Error loading phrases:', e);
+        document.getElementById('phrasesGrid').innerHTML = '<div class="col-12 text-center py-5"><p class="text-danger">❌ Fehler beim Laden / Yuklashda xatolik</p></div>';
     }
 }
+
+function updateCounters() {
+    document.getElementById('countAll').textContent = allPhrases.length;
+    document.getElementById('countFlower').textContent = allPhrases.filter(p => p.plant_type === 'цветок').length;
+    document.getElementById('countTree').textContent = allPhrases.filter(p => p.plant_type === 'дерево').length;
+    document.getElementById('countFruit').textContent = allPhrases.filter(p => p.plant_type === 'фрукт').length;
+    document.getElementById('countPlant').textContent = allPhrases.filter(p => p.plant_type === 'растение').length;
+    document.getElementById('countGarden').textContent = allPhrases.filter(p => p.plant_type === 'сад').length;
+    document.getElementById('countPoliz').textContent = allPhrases.filter(p => p.plant_type === 'бахча').length;
+    document.getElementById('countовощ').textContent = allPhrases.filter(p => p.plant_type === 'овощ').length;
+    document.getElementById('countOsimlikQismi').textContent = allPhrases.filter(p => p.plant_type === 'бобовое_растение').length;
+    document.getElementById('countGetreide').textContent = allPhrases.filter(p => p.plant_type === 'getreide').length;
+}
+
+function filterAndRender() {
+    let filtered = [...allPhrases];
+
+    if (currentFilter !== 'all') {
+        filtered = filtered.filter(p => p.plant_type === currentFilter);
+    }
+
+    if (currentSearch.trim()) {
+        if (searchMode === 'relevant') {
+            const withRelevance = filtered
+                .map(phrase => ({
+                    phrase: phrase,
+                    relevance: calculateRelevance(phrase, currentSearch)
+                }))
+                .filter(item => item.relevance > 0);
+
+            withRelevance.sort((a, b) => b.relevance - a.relevance);
+            filtered = withRelevance.map(item => item.phrase);
+        } else {
+            filtered = filtered.filter(p => searchInPhrase(p, currentSearch));
+        }
+    }
+
+    filteredPhrases = filtered;
+    updateSearchStats();
+    renderWithPagination();
+}
+
+function updateSearchStats() {
+    const searchStatsDiv = document.getElementById('searchStats');
+
+    if (currentSearch.trim()) {
+        searchStatsDiv.style.display = 'block';
+        const matchCount = filteredPhrases.length;
+
+        const modeTextDE = {
+            'relevant': 'Relevanz (sortiert)',
+            'any': 'eines der Wörter',
+            'all': 'alle Wörter',
+            'exact': 'genauer Text'
+        };
+
+        let activeFields = [];
+        if (searchGerman) activeFields.push('Redensart');
+        if (searchGermanVariants) activeFields.push('mit Varianten');
+        if (searchUzbek) activeFields.push('Bedeutung');
+        if (searchDescription) activeFields.push('Beschreibung');
+        if (searchOrigin) activeFields.push('Herkunft');
+
+        let fieldsText = activeFields.length > 0 ? ` (in: ${activeFields.join(', ')})` : '';
+
+        document.getElementById('searchResultInfo').innerHTML = `
+            <strong>Suchergebnis für "${escapeHtml(currentSearch)}"</strong> –
+            ${matchCount} ${matchCount === 1 ? 'Redewendung gefunden' : 'Redewendungen gefunden'}
+            <small>(Modus: ${modeTextDE[searchMode]}${fieldsText})</small>
+            <br>
+            <small><i class="fas fa-language me-1"></i>
+            Qidiruv natijasi "${escapeHtml(currentSearch)}" –
+            ${matchCount} ta ${matchCount === 1 ? 'frazeologizm topildi' : 'frazeologizm topildi'}</small>
+        `;
+    } else {
+        searchStatsDiv.style.display = 'none';
+    }
+}
+
+function renderWithPagination() {
+    const totalItems = filteredPhrases.length;
+    const totalPages = Math.ceil(totalItems / currentPerPage);
+
+    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const start = (currentPage - 1) * currentPerPage;
+    const end = start + currentPerPage;
+    const paginatedPhrases = filteredPhrases.slice(start, end);
+
+    renderPhrases(paginatedPhrases);
+    renderPagination(totalPages, currentPage, totalItems);
+}
+
+function highlightText(text, searchTerm) {
+    if (!searchTerm || !text) return escapeHtml(text);
+
+    let result = escapeHtml(text);
+    let searchWords = searchTerm.toLowerCase().split(/\s+/);
+
+    for (let word of searchWords) {
+        if (word.length < 2) continue;
+        let regex = new RegExp(`(${escapeRegex(word)})`, 'gi');
+        result = result.replace(regex, '<mark class="search-highlight">$1</mark>');
+    }
+    return result;
+}
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function renderPhrases(phrases) {
+    const grid = document.getElementById('phrasesGrid');
+
+    if (!phrases || phrases.length === 0) {
+        grid.innerHTML = `<div class="col-12 text-center py-5">
+            <i class="fas fa-leaf fa-4x text-muted mb-3"></i>
+            <p class="text-muted">🌷 Keine Redewendung gefunden / Hech qanday frazeologizm topilmadi</p>
+        </div>`;
+        return;
+    }
+
+    grid.innerHTML = phrases.map(p => {
+        // ==========================================================
+        // ИСПРАВЛЕННЫЙ БЛОК ОПРЕДЕЛЕНИЯ ИКОНОК И ПОДПИСЕЙ
+        // ==========================================================
+        let icon = '', typeDE = '', typeUZ = '';
+
+        if (p.plant_type === 'цветок') {
+            icon = '🌸'; typeDE = 'Blume'; typeUZ = 'Gul';
+        } else if (p.plant_type === 'дерево') {
+            icon = '🌳'; typeDE = 'Baum'; typeUZ = 'Daraxt';
+        } else if (p.plant_type === 'фрукт') {
+            icon = '🍎'; typeDE = 'Frucht'; typeUZ = 'Meva';
+        } else if (p.plant_type === 'растение' || p.plant_type === 'трава' || p.plant_type === null) {
+            // общая категория для растений и трав
+            icon = '🌿'; typeDE = 'Pflanze'; typeUZ = "O'simlik";
+        } else if (p.plant_type === 'сад') {
+            icon = '🏡'; typeDE = 'Garten'; typeUZ = "Bog'";
+        } else if (p.plant_type === 'бахча') {
+            icon = '🍉'; typeDE = 'Melonen'; typeUZ = "Poliz ekinlari";
+        } else if (p.plant_type === 'овощ') {
+            icon = '🥕'; typeDE = 'Gemüse'; typeUZ = "Sabzavotlar";
+        } else if (p.plant_type === 'бобовое_растение') {
+            icon = '🌿'; typeDE = 'Hülsenfrucht'; typeUZ = "Dukkakli o‘simlik";
+        } else if (p.plant_type === 'getreide') {
+            icon = '🌾'; typeDE = 'Getreide'; typeUZ = "Don";
+        } else {
+            // fallback
+            icon = '🌿'; typeDE = 'Pflanze'; typeUZ = "O'simlik";
+        }
+        // ==========================================================
+
+        let germanDisplay = p.german;
+        let uzbekDisplay = p.uzbek;
+        let literalDisplay = p.literal || '';
+        let descriptionDisplay = p.description || '';
+        let originDisplay = p.origin || '';
+        let exampleDisplay = p.example || '';
+        let neutralMeaningDisplay = p.neutral_meaning || '';
+
+        if (currentSearch) {
+            germanDisplay = highlightText(p.german, currentSearch);
+            uzbekDisplay = highlightText(p.uzbek, currentSearch);
+            literalDisplay = highlightText(p.literal || '', currentSearch);
+            descriptionDisplay = highlightText(p.description || '', currentSearch);
+            originDisplay = highlightText(p.origin || '', currentSearch);
+            exampleDisplay = highlightText(p.example || '', currentSearch);
+            neutralMeaningDisplay = highlightText(p.neutral_meaning || '', currentSearch);
+        }
+
+        return `
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="phrase-card h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title text-success mb-0">${icon} ${germanDisplay}</h5>
+                            <span class="badge bg-secondary rounded-pill px-3 py-2">
+                                <i class="fas fa-chart-line"></i> ${p.usage_count || 0}
+                            </span>
+                        </div>
+
+                        ${literalDisplay ? `
+                        <div class="detail-section mb-2">
+                            <div class="detail-title"><i class="fas fa-book"></i> 📖 wörtlich / so'zma-so'z:</div>
+                            <div class="detail-text">${literalDisplay}</div>
+                        </div>` : ''}
+
+                        <h6 class="text-primary mt-2 mb-3">
+                            <i class="fas fa-language me-1"></i> 🇺🇿 ${uzbekDisplay}
+                        </h6>
+
+                        <div class="mt-3 d-flex gap-2 flex-wrap mb-3">
+                            <span class="type-badge bg-light text-dark">${icon} ${typeDE}</span>
+                            <span class="type-badge bg-light text-dark">🇺🇿 ${typeUZ}</span>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn-meaning"
+                                    data-german="${escapeHtml(p.german)}"
+                                    data-uzbek="${escapeHtml(p.uzbek)}"
+                                    data-literal="${escapeHtml(p.literal || '')}"
+                                    data-description="${escapeHtml(p.description || '')}"
+                                    data-example="${escapeHtml(p.example || '')}">
+                                <i class="fas fa-info-circle"></i> Bedeutung / Ma'nosi
+                            </button>
+                            <button class="btn-neutral"
+                                    data-german="${escapeHtml(p.german)}"
+                                    data-uzbek="${escapeHtml(p.uzbek)}"
+                                    data-neutral-meaning="${escapeHtml(p.neutral_meaning || '')}"
+                                    data-example="${escapeHtml(p.example || '')}">
+                                <i class="fas fa-balance-scale"></i> Neytral ma'no
+                            </button>
+                            <button class="btn-origin"
+                                    data-german="${escapeHtml(p.german)}"
+                                    data-uzbek="${escapeHtml(p.uzbek)}"
+                                    data-origin="${escapeHtml(p.origin || '')}"
+                                    data-example="${escapeHtml(p.example || '')}">
+                                <i class="fas fa-history"></i> Herkunft
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    document.querySelectorAll('.btn-meaning').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const phrase = {
+                german: btn.dataset.german,
+                uzbek: btn.dataset.uzbek,
+                literal: btn.dataset.literal,
+                description: btn.dataset.description,
+                example: btn.dataset.example
+            };
+            showMeaning(phrase);
+        });
+    });
+
+    document.querySelectorAll('.btn-neutral').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const phrase = {
+                german: btn.dataset.german,
+                uzbek: btn.dataset.uzbek,
+                neutral_meaning: btn.dataset.neutralMeaning,
+                example: btn.dataset.example
+            };
+            showNeutral(phrase);
+        });
+    });
+
+    document.querySelectorAll('.btn-origin').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const phrase = {
+                german: btn.dataset.german,
+                uzbek: btn.dataset.uzbek,
+                origin: btn.dataset.origin,
+                example: btn.dataset.example
+            };
+            showOrigin(phrase);
+        });
+    });
+}
+
+function renderPagination(totalPages, currentPage, totalItems) {
+    const paginationContainer = document.getElementById('paginationContainer');
+    const paginationUl = document.getElementById('pagination');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const totalPagesInfo = document.getElementById('totalPagesInfo');
+
+    if (totalPages <= 1) {
+        paginationContainer.style.display = 'none';
+        return;
+    }
+
+    paginationContainer.style.display = 'block';
+
+    const start = (currentPage - 1) * currentPerPage + 1;
+    const end = Math.min(currentPage * currentPerPage, totalItems);
+    paginationInfo.innerHTML = `<i class="fas fa-list-ul me-1"></i> Gezeigt ${start}-${end} von ${totalItems} Redewendungen<br><small><i class="fas fa-language me-1"></i> Ko'rsatilgan ${start}-${end} / ${totalItems} ta frazeologizmdan</small>`;
+    totalPagesInfo.innerHTML = `<i class="fas fa-file-alt me-1"></i> Seite ${currentPage} von ${totalPages} | ${currentPage}-sahifa / ${totalPages}`;
+
+    let html = '';
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="1"><i class="fas fa-angle-double-left"></i></a></li>`;
+    html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage - 1}"><i class="fas fa-angle-left"></i></a></li>`;
+
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+    if (startPage > 1) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+    for (let i = startPage; i <= endPage; i++) {
+        html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+    }
+    if (endPage < totalPages) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage + 1}"><i class="fas fa-angle-right"></i></a></li>`;
+    html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${totalPages}"><i class="fas fa-angle-double-right"></i></a></li>`;
+
+    paginationUl.innerHTML = html;
+
+    document.querySelectorAll('#pagination .page-link[data-page]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = parseInt(link.dataset.page);
+            if (!isNaN(page) && page !== currentPage) {
+                currentPage = page;
+                renderWithPagination();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    });
+}
+
+function updateSearchParams() {
+    searchMode = document.querySelector('.mode-btn.active')?.dataset.mode || 'relevant';
+    wholeWordsOnly = document.getElementById('wholeWordsOnly').checked;
+
+    searchGerman = document.getElementById('searchGerman').checked;
+    searchGermanVariants = document.getElementById('searchGermanVariants').checked;
+    searchUzbek = document.getElementById('searchUzbek').checked;
+    searchDescription = document.getElementById('searchDescription').checked;
+    searchOrigin = document.getElementById('searchOrigin').checked;
+}
+
+let searchTimeout;
+
+function performSearch() {
+    updateSearchParams();
+    currentSearch = liveSearchInput.value.trim();
+    currentPage = 1;
+    filterAndRender();
+}
+
+function resetAllFilters() {
+    liveSearchInput.value = '';
+    document.getElementById('wholeWordsOnly').checked = false;
+
+    document.getElementById('searchGerman').checked = true;
+    document.getElementById('searchGermanVariants').checked = false;
+    document.getElementById('searchUzbek').checked = true;
+    document.getElementById('searchDescription').checked = true;
+    document.getElementById('searchOrigin').checked = false;
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.mode === 'relevant') btn.classList.add('active');
+    });
+
+    searchMode = 'relevant';
+    searchGerman = true;
+    searchGermanVariants = false;
+    searchUzbek = true;
+    searchDescription = true;
+    searchOrigin = false;
+    currentSearch = '';
+    currentFilter = 'all';
+    currentPage = 1;
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.filter === 'all') btn.classList.add('active');
+    });
+
+    filterAndRender();
+}
+
+document.querySelectorAll('.search-field-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+        if (currentSearch) {
+            performSearch();
+        } else {
+            filterAndRender();
+        }
+    });
+});
+
+liveSearchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        performSearch();
+    }, 300);
+});
+
+document.getElementById('clearLiveSearchBtn').addEventListener('click', () => {
+    liveSearchInput.value = '';
+    performSearch();
+});
+
+document.getElementById('advancedSearchBtn').addEventListener('click', performSearch);
+document.getElementById('resetSearchBtn').addEventListener('click', resetAllFilters);
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (currentSearch) performSearch();
+        else filterAndRender();
+    });
+});
+
+document.querySelectorAll('.example-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        liveSearchInput.value = chip.dataset.phrase;
+        performSearch();
+    });
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        currentPage = 1;
+        filterAndRender();
+    });
+});
+
+document.getElementById('perPageSelect').addEventListener('change', (e) => {
+    currentPerPage = parseInt(e.target.value);
+    currentPage = 1;
+    renderWithPagination();
+});
 
 function escapeHtml(text) {
     if (!text) return '';
@@ -155,58 +1469,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-async function translate() {
-    const sourceText = document.getElementById('sourceText').value;
-    if (!sourceText.trim()) {
-        alert('🌷 Bitte geben Sie eine Redewendung über Flora ein');
-        return;
-    }
-
-    const translateBtn = document.getElementById('translateBtn');
-    translateBtn.disabled = true;
-    translateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Übersetzung...';
-
-    try {
-        const response = await fetch('/api/translate', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                text: sourceText,
-                direction: currentDirection
-            })
-        });
-        const data = await response.json();
-
-        document.getElementById('targetText').value = data.translation;
-        document.getElementById('translationNote').innerHTML = data.note.replace(/\n/g, '<br>');
-    } catch(e) {
-        alert('Fehler bei der Übersetzung');
-    } finally {
-        translateBtn.disabled = false;
-        translateBtn.innerHTML = '<i class="fas fa-seedling"></i> Übersetzen';
-    }
-}
-
-document.getElementById('translateBtn').addEventListener('click', translate);
-document.getElementById('clearBtn').addEventListener('click', () => {
-    document.getElementById('sourceText').value = '';
-    document.getElementById('targetText').value = '';
-    document.getElementById('translationNote').innerHTML = '🌷 Gelöscht. Geben Sie eine Redewendung über Flora ein.';
-});
-
-document.getElementById('swapBtn').addEventListener('click', () => {
-    currentDirection = currentDirection === 'de2uz' ? 'uz2de' : 'de2uz';
-
-    if (currentDirection === 'de2uz') {
-        document.getElementById('translationNote').innerHTML = '🌻 Modus: Deutsch → Usbekisch. Geben Sie eine deutsche Redewendung über Pflanzen ein.';
-    } else {
-        document.getElementById('translationNote').innerHTML = '🌻 Modus: Usbekisch → Deutsch. Geben Sie eine usbekische Redewendung über Pflanzen ein.';
-    }
-
-    document.getElementById('sourceText').value = '';
-    document.getElementById('targetText').value = '';
-});
-
-loadExamples();
+loadAllPhrases();
 </script>
 {% endblock %}
