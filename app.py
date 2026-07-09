@@ -9,16 +9,31 @@ import re
 import os
 import math
 
+# ============================================================
+# ПАТЧ ДЛЯ ИСПРАВЛЕНИЯ ОШИБКИ 'partitioned' В COOKIE
+# ============================================================
+from werkzeug.wrappers import Response
+_original_set_cookie = Response.set_cookie
+
+def _patched_set_cookie(self, key, value='', max_age=None, expires=None,
+                         path='/', domain=None, secure=False, httponly=False,
+                         samesite=None, partitioned=False, **kwargs):
+    # Игнорируем параметр partitioned, чтобы избежать TypeError
+    _original_set_cookie(self, key, value, max_age, expires,
+                         path, domain, secure, httponly,
+                         samesite, **kwargs)
+
+Response.set_cookie = _patched_set_cookie
+# ============================================================
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'flora-phraseology-secret-key-2024')
 
 # Используем PostgreSQL на Vercel, SQLite локально
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
-    # Для Vercel (PostgreSQL)
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 else:
-    # Для локальной разработки (SQLite)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///phrases.db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -26,7 +41,6 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['ITEMS_PER_PAGE'] = 20
 
-# Создаём папку для загрузок (только локально)
 if not os.environ.get('VERCEL'):
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -488,15 +502,12 @@ def get_phrases_paginated_public():
         return jsonify({'success': False, 'error': str(e), 'data': [], 'pagination': {'current_page': 1, 'per_page': per_page, 'total_items': 0, 'total_pages': 0, 'has_prev': False, 'has_next': False, 'prev_page': None, 'next_page': None}}), 200
 
 
-# ==================== ДЛЯ VERCEL ====================
-# Инициализируем базу данных при запуске
-# ==================== ДЛЯ VERCEL ====================
-# Инициализируем базу данных при запуске
+# ==================== ИНИЦИАЛИЗАЦИЯ ДЛЯ VERCEL ====================
 with app.app_context():
     try:
         db.create_all()
 
-        # Удаляем старого админа если он с логином admin
+        # Удаляем старого админа (если есть)
         old_admin = User.query.filter_by(username='admin').first()
         if old_admin:
             db.session.delete(old_admin)
@@ -511,6 +522,25 @@ with app.app_context():
             print("👑 Администратор создан: flora_fraz / Flora]]12345")
         else:
             print("✅ Администратор flora_fraz уже существует")
+
+        # ==========================================================
+        # АВТОМАТИЧЕСКОЕ ИСПРАВЛЕНИЕ КАТЕГОРИЙ ДЛЯ ОВОЩНЫХ ФРАЗ
+        # ==========================================================
+        phrases_to_fix = [
+            ("Junges Gemüse", "овощ"),
+            ("Jemanden fallen lassen wie eine heiße Kartoffel", "овощ"),
+            ("Der Fall wird wie eine heiße Kartoffel angefasst", "овощ"),
+        ]
+        for german, new_type in phrases_to_fix:
+            phrase = Phrase.query.filter_by(german=german).first()
+            if phrase:
+                if phrase.plant_type != new_type:
+                    phrase.plant_type = new_type
+                    print(f"✅ Исправлена категория для '{german}' -> {new_type}")
+            else:
+                print(f"⚠️ Фраза '{german}' не найдена в базе")
+        db.session.commit()
+        # ==========================================================
 
     except Exception as e:
         print(f"Ошибка инициализации базы данных: {e}")
