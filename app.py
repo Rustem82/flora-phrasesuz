@@ -18,7 +18,6 @@ _original_set_cookie = Response.set_cookie
 def _patched_set_cookie(self, key, value='', max_age=None, expires=None,
                          path='/', domain=None, secure=False, httponly=False,
                          samesite=None, partitioned=False, **kwargs):
-    # Игнорируем параметр partitioned, чтобы избежать TypeError
     _original_set_cookie(self, key, value, max_age, expires,
                          path, domain, secure, httponly,
                          samesite, **kwargs)
@@ -174,11 +173,13 @@ def init_db():
 
 @app.route('/')
 def index():
+    """Главная страница с переводчиком"""
     return render_template('index.html')
 
 
 @app.route('/dictionary')
 def dictionary():
+    """Страница словаря"""
     return render_template('dictionary.html')
 
 
@@ -524,12 +525,22 @@ with app.app_context():
             print("✅ Администратор flora_fraz уже существует")
 
         # ==========================================================
-        # АВТОМАТИЧЕСКОЕ ИСПРАВЛЕНИЕ КАТЕГОРИЙ ДЛЯ ОВОЩНЫХ ФРАЗ
+        # АВТОМАТИЧЕСКОЕ ИСПРАВЛЕНИЕ КАТЕГОРИЙ ДЛЯ ВСЕХ НУЖНЫХ ФРАЗ
         # ==========================================================
         phrases_to_fix = [
+            # Овощи
             ("Junges Gemüse", "овощ"),
             ("Jemanden fallen lassen wie eine heiße Kartoffel", "овощ"),
             ("Der Fall wird wie eine heiße Kartoffel angefasst", "овощ"),
+            # Зерновые (Getreide)
+            ("Volle Ähren neigen sich, leere stehen aufrecht", "getreide"),
+            ("Eine Ähre macht keine Garbe", "getreide"),
+            ("Die Ähren hängen lassen", "getreide"),
+            # Акации (деревья)
+            ("Das ist, um auf die Akazien zu klettern!", "дерево"),
+            ("Wie stehen die Akazien?", "дерево"),
+            # Алоэ – оставляем как растение (или можно "дерево", но пусть будет растение)
+            ("Aloe ist gemeines Holz, wo es wächst", "растение"),
         ]
         for german, new_type in phrases_to_fix:
             phrase = Phrase.query.filter_by(german=german).first()
