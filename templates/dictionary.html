@@ -476,7 +476,6 @@
                 <span class="badge bg-success me-2 px-3 py-2">🍎 Früchte / Mevalar</span>
                 <span class="badge bg-success me-2 px-3 py-2">🌿 Pflanzen / O'simliklar/Pflanzenteilen/O'simlik qismlari/</span>
                 <span class="badge bg-success me-2 px-3 py-2">🏡 Garten / Bog'/-Wald/O'rmon</span>
-                <div class="badge-group-secondary mt-1 pt-1">
                 <span class="badge bg-success me-2 px-3 py-2">🍉 die Kürbisgewächse/Poliz ekinlari </span>
                 <span class="badge bg-success me-2 px-3 py-2">🥕 Gemüse/Sabzavotlar</span>
                 <span class="badge bg-success me-2 px-3 py-2">🌿 Hülsenfrucht/Dukkakli o‘simlik</span>
@@ -1163,17 +1162,35 @@ function renderPhrases(phrases) {
     }
 
     grid.innerHTML = phrases.map(p => {
+        // ==========================================================
+        // ИСПРАВЛЕННЫЙ БЛОК ОПРЕДЕЛЕНИЯ ИКОНОК И ПОДПИСЕЙ
+        // ==========================================================
         let icon = '', typeDE = '', typeUZ = '';
-        if (p.plant_type === 'цветок') { icon = '🌸'; typeDE = 'Blume'; typeUZ = 'Gul'; }
-        else if (p.plant_type === 'дерево') { icon = '🌳'; typeDE = 'Baum'; typeUZ = 'Daraxt'; }
-        else if (p.plant_type === 'фрукт') { icon = '🍎'; typeDE = 'Frucht'; typeUZ = 'Meva'; }
-        else if (p.plant_type === 'растение','трава') { icon = '🌿'; typeDE = 'Pflanze'; 'Kraut'; typeUZ = "O'simlik"; "O't"; }
-        else if (p.plant_type === 'сад') { icon = '🏡'; typeDE = 'Garten'; typeUZ = "Bog'"; }
-        else if (p.plant_type === 'poliz') { icon = '🍉'; typeDE = 'Melonen'; typeUZ = "Poliz ekinlari"; }
-        else if (p.plant_type === 'овощ') { icon = '🥕'; typeDE = 'Gemüse'; typeUZ = "Sabzavotlar"; }
-        else if (p.plant_type === 'бобовое_растение') { icon = '🌿'; typeDE = 'Hülsenfrucht'; typeUZ = "Бобовое растение"; }
-        else if (p.plant_type === 'getreide') { icon = '🌾'; typeDE = 'Getreide'; typeUZ = "Don"; }
-        else { icon = '🌿'; typeDE = 'Pflanze'; typeUZ = "O'simlik"; }
+
+        if (p.plant_type === 'цветок') {
+            icon = '🌸'; typeDE = 'Blume'; typeUZ = 'Gul';
+        } else if (p.plant_type === 'дерево') {
+            icon = '🌳'; typeDE = 'Baum'; typeUZ = 'Daraxt';
+        } else if (p.plant_type === 'фрукт') {
+            icon = '🍎'; typeDE = 'Frucht'; typeUZ = 'Meva';
+        } else if (p.plant_type === 'растение' || p.plant_type === 'трава' || p.plant_type === null) {
+            // общая категория для растений и трав
+            icon = '🌿'; typeDE = 'Pflanze'; typeUZ = "O'simlik";
+        } else if (p.plant_type === 'сад') {
+            icon = '🏡'; typeDE = 'Garten'; typeUZ = "Bog'";
+        } else if (p.plant_type === 'бахча') {
+            icon = '🍉'; typeDE = 'Melonen'; typeUZ = "Poliz ekinlari";
+        } else if (p.plant_type === 'овощ') {
+            icon = '🥕'; typeDE = 'Gemüse'; typeUZ = "Sabzavotlar";
+        } else if (p.plant_type === 'бобовое_растение') {
+            icon = '🌿'; typeDE = 'Hülsenfrucht'; typeUZ = "Dukkakli o‘simlik";
+        } else if (p.plant_type === 'getreide') {
+            icon = '🌾'; typeDE = 'Getreide'; typeUZ = "Don";
+        } else {
+            // fallback
+            icon = '🌿'; typeDE = 'Pflanze'; typeUZ = "O'simlik";
+        }
+        // ==========================================================
 
         let germanDisplay = p.german;
         let uzbekDisplay = p.uzbek;
